@@ -7,7 +7,14 @@ from auth import verify_password
 from schemas import UserLogin
 from crud import get_user_by_email
 from fastapi import HTTPException,status
+from auth import create_access_token
+from jose import JWTError, jwt
+from fastapi import HTTPException, status
+from fastapi import Depends
+from fastapi.security import OAuth2PasswordBearer
+from auth import verify_token
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 
@@ -15,6 +22,7 @@ from fastapi import HTTPException,status
 
 router = APIRouter()
 
+# sign up
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 def signup(user: UserSignup):
     hashed = hash_password(user.password)
@@ -23,18 +31,21 @@ def signup(user: UserSignup):
 
 
 @router.get("/users")
-def fetch_users():
+def fetch_users(token: str = Depends(oauth2_scheme)):
+    verify_token(token)
     return get_users()
 
 
 @router.put("/users/{user_id}")
-def update(user_id: int, user: UserSignup):
+def update(user_id: int, user: UserSignup,token: str = Depends(oauth2_scheme)):
+    verify_token(token)
     update_user(user_id, user)
     return {"message": "user updated"}
 
 
 @router.delete("/users/{user_id}")
-def delete(user_id: int):
+def delete(user_id: int, token: str = Depends(oauth2_scheme)):
+    verify_token(token)
     delete_user(user_id)
     return {"message": "user deleted"}
 
@@ -52,12 +63,15 @@ def login(user: UserLogin):
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="invalid password or user"
         )
+    
+    token = create_access_token({"sub": str(db_user["id"])})
+
    
    
     return {
-
-        "message":"login successfully",
-        "user_id": db_user["id"],
-        "email": db_user["email"]
-        
+        "access_token":token,
+        "token_type":"bearer"
         }
+
+
+
