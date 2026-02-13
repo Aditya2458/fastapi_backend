@@ -30,3 +30,14 @@ def verify_token(token: str):
         return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
+    
+
+
+def create_reset_token(user_id:int):
+    expire = datetime.utcnow()+ timedelta(minutes=15)
+    payload={
+        "sub":str(user_id),
+        "type":"password_reset",
+        "exp":expire
+    }
+    return jwt.encode(payload,SECRET_KEY,algorithm=ALGORITHM)

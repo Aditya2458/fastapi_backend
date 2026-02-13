@@ -44,3 +44,8 @@ def get_user_by_email(email):
         (email,)
     )
     return cursor.fetchone()
+
+def update_user_password(user_id:int , hashed_password:int):
+    query="UPDATE users SET password= %s WHERE id =%s"
+    cursor.execute(query,(hashed_password,user_id))
+    db.commit()

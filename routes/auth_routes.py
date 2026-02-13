@@ -2,6 +2,12 @@ from fastapi import APIRouter, HTTPException, status
 from schemas import UserSignup, UserLogin
 from auth import hash_password, verify_password, create_access_token
 from crud import create_user, get_user_by_email
+from schemas import ForgotPasswordRequest
+from auth import create_reset_token
+from crud import update_user_password
+from schemas import ResetPasswordRequest
+from jose import JWTError, jwt
+from auth import hash_password, SECRET_KEY, ALGORITHM
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -26,3 +32,42 @@ def login(user: UserLogin):
         "access_token": token,
         "token_type": "bearer"
     }
+
+# here this is for reset password token generation
+
+
+@router.post("/forgot_password")
+def forget_password(request:ForgotPasswordRequest):
+    user= get_user_by_email(request.email)
+
+    if not user:
+        raise HTTPException(status_code=404,detail="user not found")
+    
+    reset_token= create_reset_token(user["id"])
+
+    return{
+        "message":"password reset token generated",
+        "reset_token": reset_token
+    }
+
+
+# here am creating routes for reset password
+
+@router.post("/reset_password")
+def reset_password(request: ResetPasswordRequest):
+
+    try:
+        payload = jwt.decode(request.token, SECRET_KEY, algorithms=[ALGORITHM])
+    except JWTError as e:
+        print(e)
+        raise HTTPException(status_code=400, detail="Invalid or expired reset token")
+    
+    if payload.get("type") != "password_reset":
+        raise HTTPException(status_code=400, detail="Invalid reset token")
+    
+    user_id= payload.get("sub")
+
+    hashed_password = hash_password(request.new_password)
+    update_user_password(user_id, hashed_password)
+    return {"message": "Password reset successfully"}
+
