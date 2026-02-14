@@ -49,3 +49,37 @@ def test_login_success():
 
     assert "access_token" in data
     assert data["token_type"]== "bearer"
+
+
+def test_protected_route_with_token():
+    import uuid
+
+    email = f"secure_{uuid.uuid4()}@gmail.com"
+    password = "Strong@123"
+
+    # Create user
+    client.post("/api/auth/signup", json={
+        "name": "Secure User",
+        "age": 24,
+        "location": "Delhi",
+        "email": email,
+        "password": password,
+        "confirm_password": password
+    })
+
+    # Login
+    login_response = client.post("/api/auth/login", json={
+        "email": email,
+        "password": password
+    })
+
+    token = login_response.json()["access_token"]
+
+    # Access protected route
+    response = client.get(
+        "/api/users",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+
