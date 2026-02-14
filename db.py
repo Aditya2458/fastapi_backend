@@ -2,8 +2,6 @@ import mysql.connector
 import os
 import time
 
-TESTING = os.getenv("TESTING") == "1"
-
 def connect_to_db():
     while True:
         try:
@@ -19,9 +17,5 @@ def connect_to_db():
             print("⏳ Waiting for MySQL...")
             time.sleep(3)
 
-if TESTING:
-    db = None
-    cursor = None
-else:
-    db = connect_to_db()
-    cursor = db.cursor(dictionary=True)
+db = connect_to_db()
+cursor = db.cursor(dictionary=True)
