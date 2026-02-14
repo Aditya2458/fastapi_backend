@@ -19,3 +19,20 @@ def connect_to_db():
 
 db = connect_to_db()
 cursor = db.cursor(dictionary=True)
+
+
+
+create_table_query = """
+CREATE TABLE IF NOT EXISTS users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100),
+    age INT,
+    location VARCHAR(100),
+    email VARCHAR(255) UNIQUE,
+    password VARCHAR(255)
+)
+"""
+
+cursor.execute(create_table_query)
+db.commit()
+print("✅ Users table ready")
