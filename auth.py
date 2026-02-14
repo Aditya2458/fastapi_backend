@@ -11,6 +11,11 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 
 def hash_password(password: str):
+    password_bytes = password.encode("utf-8")
+
+    if len(password_bytes) > 72:
+        raise ValueError("Password too long (bcrypt limit is 72 bytes)")
+
     return pwd_context.hash(password)
 
 
