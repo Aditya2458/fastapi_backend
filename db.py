@@ -19,3 +19,12 @@ def connect_to_db():
 
 db = connect_to_db()
 cursor = db.cursor(dictionary=True)
+
+TESTING = os.getenv("TESTING") == "1"
+
+if not TESTING:
+    db = connect_to_db()
+    cursor = db.cursor(dictionary=True)
+else:
+    db = None
+    cursor = None
