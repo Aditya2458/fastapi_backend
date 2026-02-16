@@ -1,4 +1,7 @@
 from db import db, cursor
+from mysql.connector import IntegrityError, Error
+from fastapi import HTTPException
+
 
 def create_user(user, hashed_password):
     query = """
@@ -14,8 +17,23 @@ def create_user(user, hashed_password):
         hashed_password
     )
 
-    cursor.execute(query, values)
-    db.commit()
+    try:
+        cursor.execute(query, values)
+        db.commit()
+
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=409,
+            detail="Email already registered"
+        )
+
+    except Error:
+        db.rollback()
+        raise HTTPException(
+            status_code=503,
+            detail="Database temporarily unavailable"
+        )
 
 
 def get_users():
