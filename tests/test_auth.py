@@ -37,7 +37,6 @@ def test_login_success():
         "confirm_password": password
     })
 
-
     #now login 
     response=client.post("/api/auth/login",json={
         "email":email,
@@ -50,7 +49,39 @@ def test_login_success():
     assert "access_token" in data
     assert data["token_type"]== "bearer"
 
+def test_signup_duplicate_email():
+    import uuid
 
+    email = f"duplicate_{uuid.uuid4()}@gmail.com"
+
+    payload = {
+        "name": "Duplicate User",
+        "age": 25,
+        "location": "Delhi",
+        "email": email,
+        "password": "Strong@123",
+        "confirm_password": "Strong@123"
+    }
+
+    # First signup → should succeed
+    first_response = client.post("/api/auth/signup", json=payload)
+    assert first_response.status_code == 201
+
+    # Second signup with same email → should return 409
+    second_response = client.post("/api/auth/signup", json=payload)
+
+    # Debug prints (temporary)
+    print("STATUS:", second_response.status_code)
+    print("BODY:", second_response.json())
+
+    assert second_response.status_code == 409
+    assert second_response.json()["message"] == "Email already registered"
+    assert second_response.json()["success"] is False
+    assert second_response.json()["status_code"] == 409
+
+    
+    
+    
 def test_protected_route_with_token():
     import uuid
 
