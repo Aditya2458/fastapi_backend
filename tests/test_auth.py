@@ -114,3 +114,32 @@ def test_protected_route_with_token():
 
     assert response.status_code == 200
 
+    
+
+def test_login_wrong_password():
+    import uuid
+
+    email=f"secure_{uuid.uuid4()}@gmail.com"
+    password = "strong@123"
+
+    #create user
+    client.post("/api/auth/signup",json={
+        "name": "secure User",
+        "age": 24,
+        "location":"Delhi",
+        "email":email,
+        "password":password,
+        "confirm_password":password
+    })
+
+    # attempt login with wrong password
+
+    response= client.post("/api/auth/login",json={
+        "email":email,
+        "password":"wrongpassword@123"
+    })
+
+    assert response.status_code == 401
+
+
+  
