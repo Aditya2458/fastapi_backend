@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   api:
     build: .
@@ -12,6 +10,9 @@ services:
       DB_USER: root
       DB_PASSWORD: root
       DB_NAME: api_db
+    volumes:
+      - .:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
   db:
     image: mysql:8
@@ -19,10 +20,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: api_db
-  volumes:
+    volumes:
       - mysql_data:/var/lib/mysql
 
 volumes:
   mysql_data:
-   
-   
