@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS users (
     age INT,
     location VARCHAR(100),
     email VARCHAR(255) UNIQUE,
-    password VARCHAR(255)
+    password VARCHAR(255),
+    role VARCHAR(20) NOT NULL
 )
 """
 

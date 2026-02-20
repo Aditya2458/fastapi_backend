@@ -5,8 +5,8 @@ from fastapi import HTTPException
 
 def create_user(user, hashed_password):
     query = """
-    INSERT INTO users (name, age, location, email, password)
-    VALUES (%s, %s, %s, %s, %s)
+    INSERT INTO users (name, age, location, email, password,role)
+    VALUES (%s, %s, %s, %s, %s,%s)
     """
 
     values = (
@@ -14,7 +14,8 @@ def create_user(user, hashed_password):
         user.age,
         user.location,
         user.email,
-        hashed_password
+        hashed_password,
+        user.role
     )
 
     try:

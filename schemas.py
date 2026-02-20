@@ -1,6 +1,12 @@
 from pydantic import BaseModel, EmailStr , field_validator,model_validator
 from pydantic import Field 
 import re
+from enum import Enum
+
+class UserRole(str, Enum):
+    admin = "admin"
+    teacher = "teacher"
+    student = "student"
 
 class UserSignup(BaseModel):
     
@@ -8,6 +14,7 @@ class UserSignup(BaseModel):
     age: int
     location: str
     email: EmailStr
+    role: UserRole 
     password: str = Field(min_length=8, max_length=72)
     confirm_password:str
 
