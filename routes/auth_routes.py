@@ -26,7 +26,10 @@ def login(user: UserLogin):
     if not db_user or not verify_password(user.password, db_user["password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    token = create_access_token({"sub": str(db_user["id"])})
+    token = create_access_token({
+        "sub": str(db_user["id"]),
+        "role":db_user["role"]
+        })
 
     return {
         "access_token": token,
