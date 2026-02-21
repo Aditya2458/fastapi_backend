@@ -3,6 +3,8 @@ from fastapi.security import OAuth2PasswordBearer
 from auth import verify_token
 from crud import get_users, update_user, delete_user
 from schemas import UserSignup
+from dependencies import require_role
+from fastapi import Depends
 
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
@@ -23,7 +25,6 @@ def update(user_id: int, user: UserSignup, token: str = Depends(oauth2_scheme)):
 
 
 @router.delete("/{user_id}")
-def delete(user_id: int, token: str = Depends(oauth2_scheme)):
-    verify_token(token)
+def delete(user_id: int, current_user=Depends(require_role("admin"))):
     delete_user(user_id)
     return {"message": "User deleted"}

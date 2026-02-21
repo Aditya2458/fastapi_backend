@@ -135,3 +135,33 @@ def test_login_wrong_password():
     })
 
     assert response.status_code == 401
+
+def test_student_cannot_delete_user():
+    import uuid
+
+    email = f"student_{uuid.uuid4()}@gmail.com"
+    password = "Strong@123"
+
+    client.post("/api/auth/signup", json={
+        "name": "Student",
+        "age": 20,
+        "location": "Delhi",
+        "email": email,
+        "role": "student",
+        "password": password,
+        "confirm_password": password
+    })
+
+    login = client.post("/api/auth/login", json={
+        "email": email,
+        "password": password
+    })
+
+    token = login.json()["access_token"]
+
+    response = client.delete(
+        "/api/users/1",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 403
