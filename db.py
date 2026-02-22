@@ -33,7 +33,35 @@ CREATE TABLE IF NOT EXISTS users (
     role VARCHAR(20) NOT NULL
 )
 """
+# classes table first domain table 
 
 cursor.execute(create_table_query)
 db.commit()
 print("✅ Users table ready")
+
+
+create_classes_table = """
+CREATE TABLE IF NOT EXISTS classes(
+id INT AUTO_INCREMENT PRIMARY KEY,
+name VARCHAR(50),
+section VARCHAR (10)
+)"""
+
+cursor.execute(create_classes_table)
+db.commit()
+
+
+
+create_students_table = """
+CREATE TABLE IF NOT EXISTS students (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT UNIQUE,
+    class_id INT,
+    roll_no INT,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE SET NULL
+)
+"""
+cursor.execute(create_students_table)
+db.commit()
+print("✅ Students table ready")
