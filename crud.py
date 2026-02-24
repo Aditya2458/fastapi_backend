@@ -5,8 +5,8 @@ from fastapi import HTTPException
 
 def create_user(user, hashed_password):
     query = """
-    INSERT INTO users (name, age, location, email, password,role)
-    VALUES (%s, %s, %s, %s, %s,%s)
+    INSERT INTO users (name, age, location, email, password, role)
+    VALUES (%s, %s, %s, %s, %s, %s)
     """
 
     values = (
@@ -22,6 +22,17 @@ def create_user(user, hashed_password):
         cursor.execute(query, values)
         db.commit()
 
+        user_id = cursor.lastrowid
+
+        # Only create student record if role is student
+        if user.role == "student":
+            create_student_query = """
+            INSERT INTO students (user_id)
+            VALUES (%s)
+            """
+            cursor.execute(create_student_query, (user_id,))
+            db.commit()
+
     except IntegrityError:
         db.rollback()
         raise HTTPException(
@@ -29,8 +40,9 @@ def create_user(user, hashed_password):
             detail="Email already registered"
         )
 
-    except Error:
+    except Error as e:
         db.rollback()
+        print("DB ERROR:", e)  # Temporary debug
         raise HTTPException(
             status_code=503,
             detail="Database temporarily unavailable"
