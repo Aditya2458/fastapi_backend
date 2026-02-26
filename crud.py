@@ -80,3 +80,16 @@ def update_user_password(user_id:int , hashed_password:int):
     query="UPDATE users SET password= %s WHERE id =%s"
     cursor.execute(query,(hashed_password,user_id))
     db.commit()
+
+def create_class(name,section):
+    query = """
+    INSERT INTO classes (name, section)
+        VALUES (%s, %s)
+    """
+    try:
+        cursor.execute(query, (name,section))
+        db.commit()
+        return cursor.lastrowid
+    except Error :
+        db.rollback()
+        raise HTTPException(status_code=503,detail="Database temporarily unavailable")
