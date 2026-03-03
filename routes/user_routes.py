@@ -5,7 +5,9 @@ from crud import get_users, update_user, delete_user
 from schemas import UserSignup
 from dependencies import require_role
 from fastapi import Depends
-
+from dependencies import get_current_user
+from crud import get_user_by_id
+from fastapi import  HTTPException
 router = APIRouter(prefix="/api/users", tags=["Users"])
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/auth/login")
@@ -28,3 +30,18 @@ def update(user_id: int, user: UserSignup, token: str = Depends(oauth2_scheme)):
 def delete(user_id: int, current_user=Depends(require_role("admin"))):
     delete_user(user_id)
     return {"message": "User deleted"}
+
+
+@router.get("/me")
+def get_my_profile(current_user=Depends(get_current_user)):
+    user_id =int(current_user["sub"])
+
+    user = get_user_by_id(user_id)
+
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return {
+        "success": True,
+        "data": user
+    }

@@ -12,3 +12,4 @@ def create_new_class(data: CreateClass,_=Depends(require_role("admin"))):
         "message": "Class created successfully",
         "class_id": class_id
     }
+

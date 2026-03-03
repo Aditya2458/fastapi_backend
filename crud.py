@@ -93,3 +93,9 @@ def create_class(name,section):
     except Error :
         db.rollback()
         raise HTTPException(status_code=503,detail="Database temporarily unavailable")
+
+def get_user_by_id(user_id:int):
+    query = """
+    SELECT id,name,age,location,email,role FROM users WHERE id=%s """
+    cursor.execute(query, (user_id,))
+    return cursor.fetchone()

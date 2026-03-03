@@ -47,3 +47,4 @@ class ResetPasswordRequest(BaseModel):
 class CreateClass(BaseModel):
     name: str
     section:str
+
