@@ -165,3 +165,43 @@ def test_student_cannot_delete_user():
     )
 
     assert response.status_code == 403
+
+
+
+
+def test_get_my_profile():
+    import uuid
+
+    email = f"profile_{uuid.uuid4()}@gmail.com"
+    password = "Strong@123"
+
+    # Signup
+    client.post("/api/auth/signup", json={
+        "name": "Profile User",
+        "age": 25,
+        "location": "Delhi",
+        "email": email,
+        "role": "student",
+        "password": password,
+        "confirm_password": password
+    })
+
+    # Login
+    login = client.post("/api/auth/login", json={
+        "email": email,
+        "password": password
+    })
+
+    token = login.json()["access_token"]
+
+    # Call /me
+    response = client.get(
+        "/api/users/me",
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    assert response.status_code == 200
+    data = response.json()
+
+    assert data["success"] is True
+    assert data["data"]["email"] == email
