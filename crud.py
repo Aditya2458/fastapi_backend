@@ -99,3 +99,18 @@ def get_user_by_id(user_id:int):
     SELECT id,name,age,location,email,role FROM users WHERE id=%s """
     cursor.execute(query, (user_id,))
     return cursor.fetchone()
+
+def create_subject(db,name,code):
+    cursor=db.cursor()
+    query="INSERT INTO subjects (name,code)VALUES (%s,%s)"
+    cursor.execute(query,(name,code))
+    db.commit()
+    return{
+        "id":cursor.lastrowid,
+        "name":name,
+        "code":code
+    }
+def get_subjects(db):
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM subjects")
+    return cursor.fetchall()

@@ -65,3 +65,16 @@ CREATE TABLE IF NOT EXISTS students (
 cursor.execute(create_students_table)
 db.commit()
 print("✅ Students table ready")
+
+
+create_subjects_table = """
+CREATE TABLE IF NOT EXISTS subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    code VARCHAR(20) UNIQUE
+)
+"""
+
+cursor.execute(create_subjects_table)
+db.commit()
+print("✅ Subjects table ready")

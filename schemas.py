@@ -48,3 +48,11 @@ class CreateClass(BaseModel):
     name: str
     section:str
 
+class SubjectCreate(BaseModel):
+    name: str
+    code : str
+
+class SubjectResponse(BaseModel):
+    name: str
+    code: str
+    
