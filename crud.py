@@ -100,7 +100,7 @@ def get_user_by_id(user_id:int):
     cursor.execute(query, (user_id,))
     return cursor.fetchone()
 
-def create_subject(db,name,code):
+def create_subject(name,code):
     cursor=db.cursor()
     query="INSERT INTO subjects (name,code)VALUES (%s,%s)"
     cursor.execute(query,(name,code))
@@ -110,7 +110,7 @@ def create_subject(db,name,code):
         "name":name,
         "code":code
     }
-def get_subjects(db):
+def get_subjects():
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM subjects")
     return cursor.fetchall()
