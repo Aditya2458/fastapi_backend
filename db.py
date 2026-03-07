@@ -78,3 +78,21 @@ CREATE TABLE IF NOT EXISTS subjects (
 cursor.execute(create_subjects_table)
 db.commit()
 print("✅ Subjects table ready")
+
+
+create_marks_table = """
+CREATE TABLE IF NOT EXISTS marks (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT,
+    subject_id INT,
+    exam_type VARCHAR(50),
+    marks INT,
+
+    FOREIGN KEY (student_id) REFERENCES students(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE
+)
+"""
+
+cursor.execute(create_marks_table)
+db.commit()
+print("✅ Marks table ready")

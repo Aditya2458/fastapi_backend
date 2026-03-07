@@ -56,3 +56,9 @@ class SubjectResponse(BaseModel):
     name: str
     code: str
     
+
+class MarkCreate(BaseModel):
+    student_id: int
+    subject_id: int
+    exam_type: str
+    marks: int

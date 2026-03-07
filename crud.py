@@ -114,3 +114,16 @@ def get_subjects():
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM subjects")
     return cursor.fetchall()
+
+def create_mark(student_id, subject_id, exam_type, marks):
+    query = """
+    INSERT INTO marks (student_id, subject_id, exam_type, marks)
+    VALUES (%s, %s, %s, %s)
+    """
+    cursor.execute(query, (student_id, subject_id, exam_type, marks))
+    db.commit()
+
+
+def get_marks():
+    cursor.execute("SELECT * FROM marks")
+    return cursor.fetchall()
