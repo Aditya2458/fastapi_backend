@@ -1,34 +1,7 @@
 import uuid
-from fastapi.testclient import TestClient
-from main import app
-
-client = TestClient(app)
 
 
-def create_admin():
-    email = f"admin_{uuid.uuid4()}@gmail.com"
-    password = "Strong@123"
-
-    client.post("/api/auth/signup", json={
-        "name": "Admin User",
-        "age": 30,
-        "location": "Delhi",
-        "email": email,
-        "role": "admin",
-        "password": password,
-        "confirm_password": password
-    })
-
-    login = client.post("/api/auth/login", json={
-        "email": email,
-        "password": password
-    })
-
-    return login.json()["access_token"]
-
-
-def test_admin_can_create_subject():
-    token = create_admin()
+def test_admin_can_create_subject(client, admin_token):
 
     code = f"SUB_{uuid.uuid4().hex[:6]}"
 
@@ -38,15 +11,14 @@ def test_admin_can_create_subject():
             "name": "Physics",
             "code": code
         },
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {admin_token}"}
     )
 
     assert response.status_code == 200
     assert response.json()["message"] == "Subject created"
 
 
-def test_duplicate_subject_code():
-    token = create_admin()
+def test_duplicate_subject_code(client, admin_token):
 
     code = f"DUP_{uuid.uuid4().hex[:6]}"
 
@@ -56,7 +28,7 @@ def test_duplicate_subject_code():
             "name": "Chemistry",
             "code": code
         },
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {admin_token}"}
     )
 
     response = client.post(
@@ -65,13 +37,14 @@ def test_duplicate_subject_code():
             "name": "Chemistry",
             "code": code
         },
-        headers={"Authorization": f"Bearer {token}"}
+        headers={"Authorization": f"Bearer {admin_token}"}
     )
 
     assert response.status_code == 409
 
 
-def test_get_subjects():
+def test_get_subjects(client):
+
     response = client.get("/api/subjects/")
 
     assert response.status_code == 200
