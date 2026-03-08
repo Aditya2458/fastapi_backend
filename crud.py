@@ -1,6 +1,7 @@
 from db import db, cursor
 from mysql.connector import IntegrityError, Error
 from fastapi import HTTPException
+import mysql.connector
 
 
 def create_user(user, hashed_password):
@@ -100,20 +101,30 @@ def get_user_by_id(user_id:int):
     cursor.execute(query, (user_id,))
     return cursor.fetchone()
 
-def create_subject(name,code):
-    cursor=db.cursor()
-    query="INSERT INTO subjects (name,code)VALUES (%s,%s)"
-    cursor.execute(query,(name,code))
-    db.commit()
-    return{
-        "id":cursor.lastrowid,
-        "name":name,
-        "code":code
-    }
+
+def create_subject(name, code):
+    cursor = db.cursor(dictionary=True)
+
+    try:
+        query = "INSERT INTO subjects (name, code) VALUES (%s, %s)"
+        cursor.execute(query, (name, code))
+        db.commit()
+        return {"message": "Subject created"}
+
+    except mysql.connector.errors.IntegrityError:
+        return {
+            "success": False,
+            "message": "Subject code already exists",
+            "status_code": 409
+        }
 def get_subjects():
     cursor = db.cursor(dictionary=True)
     cursor.execute("SELECT * FROM subjects")
     return cursor.fetchall()
+
+
+
+
 
 def create_mark(student_id, subject_id, exam_type, marks):
     query = """
