@@ -1,11 +1,9 @@
 import uuid
-from fastapi.testclient import TestClient
-from main import app
-
-client = TestClient(app)
 
 
-def create_teacher():
+def test_teacher_can_add_marks(client):
+
+    # create teacher
     email = f"teacher_{uuid.uuid4()}@gmail.com"
     password = "Strong@123"
 
@@ -24,19 +22,46 @@ def create_teacher():
         "password": password
     })
 
-    return login.json()["access_token"]
+    token = login.json()["access_token"]
 
+    # create subject first
+    subject_code = f"SUB_{uuid.uuid4().hex[:6]}"
 
-def test_teacher_can_add_marks():
-    token = create_teacher()
+    subject = client.post(
+        "/api/subjects/",
+        json={
+            "name": "Physics",
+            "code": subject_code
+        },
+        headers={"Authorization": f"Bearer {token}"}
+    )
+
+    subjects = client.get("/api/subjects/")
+    subject_id = subjects.json()[-1]["id"]
+
+    # create student
+    student_email = f"student_{uuid.uuid4()}@gmail.com"
+
+    client.post("/api/auth/signup", json={
+        "name": "Student",
+        "age": 18,
+        "location": "Delhi",
+        "email": student_email,
+        "role": "student",
+        "password": password,
+        "confirm_password": password
+    })
+
+    # student record already auto-created in your system
+    student_id = 1
 
     response = client.post(
         "/api/marks/",
         json={
-            "student_id": 1,
-            "subject_id": 1,
+            "student_id": student_id,
+            "subject_id": subject_id,
             "exam_type": "Midterm",
-            "marks": 85
+            "marks": 90
         },
         headers={"Authorization": f"Bearer {token}"}
     )
