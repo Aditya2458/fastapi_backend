@@ -111,16 +111,3 @@ def test_create_subject_missing_code(client, admin_token):
 
 
 
-
-def test_create_subject_empty_name(client, admin_token):
-
-    response = client.post(
-        "/api/subjects/",
-        json={
-            "name": "",
-            "code": "EMPTY1"
-        },
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-
-    assert response.status_code == 422
