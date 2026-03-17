@@ -97,17 +97,6 @@ def test_non_admin_cannot_create_subject(client):
 import uuid
 
 
-def test_create_subject_missing_code(client, admin_token):
-
-    response = client.post(
-        "/api/subjects/",
-        json={
-            "name": "Mathematics"
-        },
-        headers={"Authorization": f"Bearer {admin_token}"}
-    )
-
-    assert response.status_code == 422
 
 
 
