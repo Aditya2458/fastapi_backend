@@ -110,4 +110,3 @@ def test_create_subject_missing_code(client, admin_token):
     assert response.status_code == 422
 
 
-
