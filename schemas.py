@@ -62,3 +62,7 @@ class MarkCreate(BaseModel):
     subject_id: int
     exam_type: str
     marks: int
+
+class TeacherSubjectCreate(BaseModel):
+    teacher_id: int
+    subject_id: int

@@ -138,3 +138,20 @@ def create_mark(student_id, subject_id, exam_type, marks):
 def get_marks():
     cursor.execute("SELECT * FROM marks")
     return cursor.fetchall()
+
+
+def assign_teacher_subject(teacher_id,subject_id):
+    query = """
+    INSERT INTO teacher_subjects (teacher_id , subject_id)
+    VALUES (%s,%s)
+    """
+    cursor.execute(query,(teacher_id,subject_id))
+    db.commit()
+
+def is_teacher_assigned(teacher_id, subject_id):
+    query = """
+    SELECT * FROM teacher_subjects
+    WHERE teacher_id = %s AND subject_id = %s
+    """
+    cursor.execute(query, (teacher_id, subject_id))
+    return cursor.fetchone()

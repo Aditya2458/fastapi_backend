@@ -1,6 +1,7 @@
 from routes import subject_routes
 from routes.auth_routes import router as auth_router
 from routes import marks_routes
+from routes import teacher_subject_routes
 from routes.user_routes import router as user_router
 from routes.class_routes import router as class_router
 from fastapi import FastAPI, HTTPException
@@ -20,3 +21,4 @@ app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(Exception, general_exception_handler)
 app.include_router(subject_routes.router)
 app.include_router(marks_routes.router)
+app.include_router(teacher_subject_routes.router)

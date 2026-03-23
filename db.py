@@ -96,3 +96,24 @@ CREATE TABLE IF NOT EXISTS marks (
 cursor.execute(create_marks_table)
 db.commit()
 print("✅ Marks table ready")
+
+
+
+create_teacher_subjects_table = """
+CREATE TABLE IF NOT EXISTS teacher_subjects (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    teacher_id INT,
+    subject_id INT,
+
+    FOREIGN KEY (teacher_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(id) ON DELETE CASCADE,
+
+    UNIQUE (teacher_id, subject_id)
+)
+"""
+
+    
+
+cursor.execute(create_teacher_subjects_table)
+db.commit()
+print("✅ Teacher-Subjects table ready")
