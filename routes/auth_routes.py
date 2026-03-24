@@ -8,6 +8,7 @@ from crud import update_user_password
 from schemas import ResetPasswordRequest
 from jose import JWTError, jwt
 from auth import hash_password, SECRET_KEY, ALGORITHM
+from metrics import login_success_total, login_failures_total
 
 router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
@@ -24,18 +25,20 @@ def login(user: UserLogin):
     db_user = get_user_by_email(user.email)
 
     if not db_user or not verify_password(user.password, db_user["password"]):
+        login_failures_total.inc()   # ❌ failed login
         raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    login_success_total.inc()       # ✅ successful login
 
     token = create_access_token({
         "sub": str(db_user["id"]),
-        "role":db_user["role"]
-        })
+        "role": db_user["role"]
+    })
 
     return {
         "access_token": token,
         "token_type": "bearer"
     }
-
 # here this is for reset password token generation
 
 
