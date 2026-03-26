@@ -1,13 +1,11 @@
 from prometheus_client import Counter
 
-# Total marks created
-marks_created_total = Counter(
-    "marks_created_total",
-    "Total number of marks created"
+login_success_total = Counter(
+    "login_success_total",
+    "Total successful logins"
 )
 
-# Login failures
 login_failures_total = Counter(
     "login_failures_total",
-    "Total number of failed login attempts"
+    "Total failed login attempts"
 )
