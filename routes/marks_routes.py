@@ -18,21 +18,17 @@ from services.marks_service import add_mark_service, list_marks_service
 
 router = APIRouter(prefix="/api/marks", tags=["Marks"])
 
-
 @router.post("/")
 def add_mark(mark: MarkCreate, current_user=Depends(require_role("teacher"))):
 
     teacher_id = int(current_user["sub"])
 
-    assigned = is_teacher_assigned(teacher_id, mark.subject_id)
-
-    success = add_mark_service(mark, teacher_id, assigned)
+    success = add_mark_service(mark, teacher_id)
 
     if not success:
         raise HTTPException(status_code=403, detail="Not allowed for this subject")
 
     return {"message": "Marks added"}
-
 
 @router.get("/")
 def list_marks():
