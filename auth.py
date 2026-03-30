@@ -46,3 +46,5 @@ def create_reset_token(user_id:int):
         "exp":expire
     }
     return jwt.encode(payload,SECRET_KEY,algorithm=ALGORITHM)
+
+
