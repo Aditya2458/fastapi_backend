@@ -1,11 +1,12 @@
 import uuid
 
 
-def test_teacher_can_add_marks(client):
+import uuid
 
+def test_teacher_can_add_marks(client):
     password = "Strong@123"
 
-    # create admin
+    # ------------------ ADMIN ------------------
     admin_email = f"admin_{uuid.uuid4()}@gmail.com"
 
     client.post("/api/auth/signup", json={
@@ -25,7 +26,7 @@ def test_teacher_can_add_marks(client):
 
     admin_token = admin_login.json()["access_token"]
 
-    # create subject
+    # ------------------ SUBJECT ------------------
     subject_code = f"SUB_{uuid.uuid4().hex[:6]}"
 
     client.post(
@@ -40,7 +41,7 @@ def test_teacher_can_add_marks(client):
     subjects = client.get("/api/subjects/")
     subject_id = subjects.json()[0]["id"]
 
-    # create teacher
+    # ------------------ TEACHER ------------------
     teacher_email = f"teacher_{uuid.uuid4()}@gmail.com"
 
     client.post("/api/auth/signup", json={
@@ -60,14 +61,14 @@ def test_teacher_can_add_marks(client):
 
     teacher_token = teacher_login.json()["access_token"]
 
-    # 🔥 get teacher_id from /me
+    # get teacher_id
     me = client.get(
         "/api/users/me",
         headers={"Authorization": f"Bearer {teacher_token}"}
     )
     teacher_id = me.json()["data"]["id"]
 
-    # ✅ assign teacher to subject (ADMIN ONLY)
+    # assign teacher → subject
     client.post(
         "/api/teacher-subjects/",
         json={
@@ -77,7 +78,7 @@ def test_teacher_can_add_marks(client):
         headers={"Authorization": f"Bearer {admin_token}"}
     )
 
-    # create student
+    # ------------------ STUDENT ------------------
     student_email = f"student_{uuid.uuid4()}@gmail.com"
 
     client.post("/api/auth/signup", json={
@@ -90,9 +91,23 @@ def test_teacher_can_add_marks(client):
         "confirm_password": password
     })
 
-    student_id = 1
+    # login student
+    student_login = client.post("/api/auth/login", json={
+        "email": student_email,
+        "password": password
+    })
 
-    # now teacher can add marks ✅
+    student_token = student_login.json()["access_token"]
+
+    # get correct student_id ✅
+    student_me = client.get(
+        "/api/users/me",
+        headers={"Authorization": f"Bearer {student_token}"}
+    )
+
+    student_id = student_me.json()["data"]["id"]
+
+    # ------------------ ADD MARKS ------------------
     response = client.post(
         "/api/marks/",
         json={
@@ -104,8 +119,8 @@ def test_teacher_can_add_marks(client):
         headers={"Authorization": f"Bearer {teacher_token}"}
     )
 
+    # ------------------ ASSERT ------------------
     assert response.status_code == 200
-
 
 def test_teacher_cannot_add_marks_without_assignment(client):
     import uuid
