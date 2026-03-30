@@ -155,3 +155,6 @@ def is_teacher_assigned(teacher_id, subject_id):
     """
     cursor.execute(query, (teacher_id, subject_id))
     return cursor.fetchone()
+
+
+
