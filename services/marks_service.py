@@ -1,24 +1,33 @@
 import json
 from crud import create_mark, get_marks
 from redis_client import redis_client
+from db import db, cursor
+from crud import is_teacher_assigned 
 
 
-def add_mark_service(mark, teacher_id, is_assigned):
-    if not is_assigned:
-        return None
+def add_mark_service(mark, teacher_id):
 
-    try:
-        create_mark(mark.student_id, mark.subject_id, mark.exam_type, mark.marks)
+    assigned = is_teacher_assigned(teacher_id, mark.subject_id)
 
-        # invalidate cache
-        redis_client.delete("marks:all")
-        print("CACHE INVALIDATED")
-
-        return True
-
-    except Exception as e:
-        print(f"ERROR in add_mark_service: {e}")
+    if not assigned:
         return False
+
+    query = """
+    INSERT INTO marks (student_id, subject_id, exam_type, marks)
+    VALUES (%s, %s, %s, %s)
+    """
+
+    values = (
+        mark.student_id,
+        mark.subject_id,
+        mark.exam_type,
+        mark.marks
+    )
+
+    cursor.execute(query, values)
+    db.commit()
+
+    return True
 
 
 def list_marks_service():
