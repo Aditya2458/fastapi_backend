@@ -44,3 +44,23 @@ jobs:
           DB_PASSWORD: root
           DB_NAME: api_db
         run: pytest --cov=. --cov-report=term --cov-fail-under=80
+
+      - name: Trivy FS Scan
+          uses: aquasecurity/trivy-action@0.24.0
+        with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        severity: 'HIGH,CRITICAL'
+        ignore-unfixed: true
+        exit-code: '1'
+
+      - name: Build Docker image
+        run: docker build -t myapp:latest .
+
+      - name: Trivy Image Scan
+        uses: aquasecurity/trivy-action@0.24.0
+        with:
+          image-ref: 'myapp:latest'
+          severity: 'HIGH,CRITICAL'
+          ignore-unfixed: true
+          exit-code: '1'

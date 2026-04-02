@@ -27,6 +27,10 @@ def add_mark_service(mark, teacher_id):
     cursor.execute(query, values)
     db.commit()
 
+
+    # 🔥 CLEAR CACHE (CRITICAL)
+    redis_client.delete("marks:all")
+
     return True
 
 

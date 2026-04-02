@@ -1,4 +1,4 @@
-import redis
+import redis # type: ignore
 
 redis_client = redis.Redis(
     host="redis",
