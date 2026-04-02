@@ -46,7 +46,7 @@ jobs:
         run: pytest --cov=. --cov-report=term --cov-fail-under=80
 
       - name: Trivy FS Scan
-          uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@0.24.0
         with:
         scan-type: 'fs'
         scan-ref: '.'
