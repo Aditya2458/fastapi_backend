@@ -25,10 +25,10 @@ def create_user(user, hashed_password):
 
         user_id = cursor.lastrowid
 
-        # Only create student record if role is student
+        # ✅ FIX HERE
         if user.role == "student":
             create_student_query = """
-            INSERT INTO students (user_id)
+            INSERT INTO students (id)
             VALUES (%s)
             """
             cursor.execute(create_student_query, (user_id,))
@@ -43,7 +43,7 @@ def create_user(user, hashed_password):
 
     except Error as e:
         db.rollback()
-        print("DB ERROR:", e)  # Temporary debug
+        print("DB ERROR:", e)
         raise HTTPException(
             status_code=503,
             detail="Database temporarily unavailable"
@@ -140,21 +140,25 @@ def get_marks():
     return cursor.fetchall()
 
 
-def assign_teacher_subject(teacher_id,subject_id):
+def assign_teacher_subject(teacher_id, subject_id):
     query = """
-    INSERT INTO teacher_subjects (teacher_id , subject_id)
-    VALUES (%s,%s)
+    INSERT INTO teacher_subjects (teacher_id, subject_id)
+    VALUES (%s, %s)
     """
-    cursor.execute(query,(teacher_id,subject_id))
+    cursor.execute(query, (teacher_id, subject_id))
     db.commit()
+
+    return True
 
 def is_teacher_assigned(teacher_id, subject_id):
     query = """
-    SELECT * FROM teacher_subjects
+    SELECT 1 FROM teacher_subjects
     WHERE teacher_id = %s AND subject_id = %s
+    LIMIT 1
     """
     cursor.execute(query, (teacher_id, subject_id))
-    return cursor.fetchone()
+    result = cursor.fetchone()
 
+    return result is not None
 
 
