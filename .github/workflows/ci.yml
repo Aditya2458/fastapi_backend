@@ -48,11 +48,11 @@ jobs:
       - name: Trivy FS Scan
         uses: aquasecurity/trivy-action@0.24.0
         with:
-        scan-type: 'fs'
-        scan-ref: '.'
-        severity: 'HIGH,CRITICAL'
-        ignore-unfixed: true
-        exit-code: '1'
+         scan-type: 'fs'
+         scan-ref: '.'
+         severity: 'HIGH,CRITICAL'
+         ignore-unfixed: true
+         exit-code: '1'
 
       - name: Build Docker image
         run: docker build -t myapp:latest .
