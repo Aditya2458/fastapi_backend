@@ -20,47 +20,81 @@ jobs:
           --health-timeout=5s
           --health-retries=5
 
-    steps:
-      - uses: actions/checkout@v4
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=5s
+          --health-timeout=3s
+          --health-retries=5
 
-      - uses: actions/setup-python@v5
+    steps:
+      # ------------------ CHECKOUT ------------------
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ------------------ PYTHON SETUP ------------------
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.13"
 
-      - run: pip install -r requirements.txt
+      # ------------------ INSTALL DEPENDENCIES ------------------
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
 
+      # ------------------ WAIT FOR MYSQL ------------------
       - name: Wait for MySQL
         run: |
-          sudo apt-get install mysql-client
+          sudo apt-get update
+          sudo apt-get install -y mysql-client
           until mysql -h 127.0.0.1 -uroot -proot -e "SELECT 1"; do
             echo "Waiting for MySQL..."
             sleep 3
           done
 
+      # ------------------ WAIT FOR REDIS ------------------
+      - name: Wait for Redis
+        run: |
+          sudo apt-get install -y redis-tools
+          until redis-cli -h 127.0.0.1 ping; do
+            echo "Waiting for Redis..."
+            sleep 2
+          done
+
+      # ------------------ RUN TESTS ------------------
       - name: Run tests
         env:
           DB_HOST: 127.0.0.1
           DB_USER: root
           DB_PASSWORD: root
           DB_NAME: api_db
-        run: pytest --cov=. --cov-report=term --cov-fail-under=80
+          REDIS_HOST: 127.0.0.1
+        run: |
+          pytest --cov=. --cov-report=term --cov-fail-under=80
 
+      # ------------------ TRIVY FILESYSTEM SCAN ------------------
       - name: Trivy FS Scan
-        uses:  aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@master
         with:
-         scan-type: 'fs'
-         scan-ref: '.'
-         severity: 'HIGH,CRITICAL'
-         ignore-unfixed: true
-         exit-code: '1'
+          scan-type: fs
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
 
+      # ------------------ BUILD DOCKER IMAGE ------------------
       - name: Build Docker image
         run: docker build -t myapp:latest .
 
+      # ------------------ TRIVY IMAGE SCAN ------------------
       - name: Trivy Image Scan
-        uses:  aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@master
         with:
-          image-ref: 'myapp:latest'
-          severity: 'HIGH,CRITICAL'
+          image-ref: myapp:latest
+          severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: '1'
+          exit-code: 1

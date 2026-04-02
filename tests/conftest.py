@@ -39,3 +39,19 @@ def admin_token(client):
     })
 
     return login.json()["access_token"]
+
+@pytest.fixture(scope="session")
+def ensure_redis():
+    import redis
+    import time
+
+    client = redis.Redis(host="localhost", port=6379)
+
+    for _ in range(10):
+        try:
+            client.ping()
+            return
+        except redis.exceptions.ConnectionError:
+            time.sleep(0.5)
+
+    raise RuntimeError("Redis not running")
