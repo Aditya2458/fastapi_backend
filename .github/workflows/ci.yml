@@ -66,7 +66,7 @@ jobs:
             sleep 2
           done
 
-      # ------------------ RUN TESTS ------------------
+            # ------------------ RUN TESTS ------------------
       - name: Run tests
         env:
           DB_HOST: 127.0.0.1
@@ -75,7 +75,19 @@ jobs:
           DB_NAME: api_db
           REDIS_HOST: 127.0.0.1
         run: |
-          pytest --cov=. --cov-report=term --cov-fail-under=80
+          pytest --cov=. --cov-report=xml --cov-fail-under=80
+
+      # ------------------ SONARCLOUD SCAN ------------------
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Aditya2458_fastapi_backend
+            -Dsonar.organization=aditya2458
+            -Dsonar.host.url=https://sonarcloud.io
+            -Dsonar.python.coverage.reportPaths=coverage.xml
 
       # ------------------ TRIVY FILESYSTEM SCAN ------------------
       - name: Trivy FS Scan
