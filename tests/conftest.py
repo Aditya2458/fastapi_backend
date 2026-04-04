@@ -42,7 +42,7 @@ def admin_token(client):
 
 @pytest.fixture(scope="session")
 def ensure_redis():
-    import redis
+    import redis # type: ignore
     import time
 
     client = redis.Redis(host="localhost", port=6379)
