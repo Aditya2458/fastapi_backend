@@ -6,6 +6,8 @@ from schemas import ForgotPasswordRequest
 from auth import create_reset_token
 from crud import update_user_password
 from schemas import ResetPasswordRequest
+from fastapi import Request
+from core.rate_limiter import limiter
 from jose import JWTError, jwt
 from auth import hash_password, SECRET_KEY, ALGORITHM
 from metrics import login_success_total, login_failures_total
@@ -14,14 +16,16 @@ router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
-def signup(user: UserSignup):
+@limiter.limit("3/minute")
+def signup(request: Request , user: UserSignup):
     hashed = hash_password(user.password)
     create_user(user, hashed)
     return {"message": "User registered successfully"}
 
 
 @router.post("/login")
-def login(user: UserLogin):
+@limiter.limit("5/minute")
+def login(request: Request ,user: UserLogin):
     db_user = get_user_by_email(user.email)
 
     if not db_user or not verify_password(user.password, db_user["password"]):
